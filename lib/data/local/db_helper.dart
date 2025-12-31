@@ -12,7 +12,7 @@ class DatabaseHelper {
   Future<Database> get database async {
     if (_database != null) return _database!;
 
-    _database = await _initDB('flashcard.db');
+    _database = await _initDB('flashcard_v2.db');
     return _database!;
   }
 
@@ -31,7 +31,7 @@ class DatabaseHelper {
 
   // mengaktifkan fitur foreign key di sqlite (defaultnya mati)
   Future _onConfigure(Database db) async {
-    await db.execute('FRAGMA foreign_keys = ON');
+    await db.execute('PRAGMA foreign_keys = ON');
   }
 
   Future _createDB(Database db, int version) async {
@@ -61,7 +61,7 @@ class DatabaseHelper {
       ease_factor REAL NOT NULL,
       due_date INTEGER NOT NULL,
       review_count INTEGER NOT NULL,
-      FOREIGN KEY (deck_id) REFERENCES (decks) (id) ON DELETE CASCADE
+      FOREIGN KEY (deck_id) REFERENCES decks (id) ON DELETE CASCADE
     )
     ''');
   }

@@ -33,7 +33,7 @@ class MyApp extends StatelessWidget {
           ),
           scaffoldBackgroundColor: AppColors.backround,
         ),
-        home: const Scaffold(body: Center(child: Text('Siap Coding UI!'))),
+        home: const HomeScreen(),
       ),
     );
   }
