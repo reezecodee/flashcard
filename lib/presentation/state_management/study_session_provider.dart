@@ -24,18 +24,25 @@ class StudySessionProvider with ChangeNotifier {
   int get remainingCards => _sessionQueue.length;
 
   // 1. mulai sesi belajar
-  Future<void> startSession(int deckId) async {
+  Future<void> startSession(int deckId, {bool reviewAll = false}) async {
     _isLoading = true;
     _isSessionFinished = true;
     notifyListeners();
 
-    // ambil kartu yang due date nya <= sekarang
-    _sessionQueue = await _cardRepository.getDueCards(deckId);
+    if (reviewAll) {
+      // mode bebas: ambil semua kartu dalam deck (tanpa filter tanggal)
+      _sessionQueue = await _cardRepository.getCardByDeckId(deckId);
+      // opsional: acak urutan kartu agar tidak monoton
+      _sessionQueue.shuffle();
+    } else {
+      // model normal: hanya ambil yang due date <= sekarang
+      _sessionQueue = await _cardRepository.getDueCards(deckId);
+    }
 
     if (_sessionQueue.isNotEmpty) {
       _currentCard = _sessionQueue.first;
     } else {
-      _isSessionFinished = true; // tidak ada kartu yang perlu dipelajari
+      _isSessionFinished = true;
     }
 
     _isLoading = false;
@@ -69,8 +76,8 @@ class StudySessionProvider with ChangeNotifier {
     _loadNextCard();
   }
 
-  void _loadNextCard(){
-    if(_sessionQueue.isNotEmpty){
+  void _loadNextCard() {
+    if (_sessionQueue.isNotEmpty) {
       _currentCard = _sessionQueue.first;
     } else {
       // antrean habis, sesi selesai

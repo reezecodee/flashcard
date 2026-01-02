@@ -58,6 +58,19 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
     );
   }
 
+  void _startReviewAllSession() {
+    // panggil provider dengan parameter reviewAll: true
+    Provider.of<StudySessionProvider>(
+      context,
+      listen: false,
+    ).startSession(widget.deck.id!, reviewAll: true);
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const StudyScreen()),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -89,20 +102,55 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
                     ],
                   ),
                 ),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primary,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 12,
+                Row(
+                  children: [
+                    // tombol utama belajar sesuai jadwal
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                      // cek: Kalau due cards habis, disable tombol ini (biar user paham)
+                      // tapi karena kita belum punya variabel countDueCards di layar ini,
+                      // kita biarkan aktif, nanti Provider yang handle kalau kosong.
+                      onPressed: _cards.isEmpty ? null : _startStudySession,
+                      child: const Text(
+                        "Mulai",
+                        style: TextStyle(color: Colors.white),
+                      ),
                     ),
-                  ),
-                  onPressed: _cards.isEmpty ? null : _startStudySession,
-                  icon: const Icon(Icons.play_arrow, color: Colors.white),
-                  label: const Text(
-                    "Mulai Belajar",
-                    style: TextStyle(color: Colors.white),
-                  ),
+
+                    const SizedBox(width: 8),
+
+                    // tombol opsi tambahan (titik tiga / menu)
+                    PopupMenuButton<String>(
+                      icon: const Icon(
+                        Icons.more_vert,
+                        color: AppColors.primary,
+                      ),
+                      onSelected: (value) {
+                        if (value == 'review_all') {
+                          _startReviewAllSession();
+                        }
+                      },
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<String>>[
+                            const PopupMenuItem<String>(
+                              value: 'review_all',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.history, color: Colors.grey),
+                                  SizedBox(width: 8),
+                                  Text('Review Semua (Abaikan Jadwal)'),
+                                ],
+                              ),
+                            ),
+                          ],
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -171,10 +219,15 @@ class _DeckDetailScreenState extends State<DeckDetailScreen> {
         onPressed: () async {
           // buka layar tambah kartu
           // 'result' akan bernilai true jika user berhasil simpan
-          final result = await Navigator.push(context, MaterialPageRoute(builder: (_) => AddEditCardScreen(deckId: widget.deck.id!)));
+          final result = await Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => AddEditCardScreen(deckId: widget.deck.id!),
+            ),
+          );
 
           // resfresh list jika ada data baru
-          if(result == true){
+          if (result == true) {
             _loadCards();
           }
         },
