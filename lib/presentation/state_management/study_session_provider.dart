@@ -26,7 +26,7 @@ class StudySessionProvider with ChangeNotifier {
   // 1. mulai sesi belajar
   Future<void> startSession(int deckId, {bool reviewAll = false}) async {
     _isLoading = true;
-    _isSessionFinished = true;
+    _isSessionFinished = false;
     notifyListeners();
 
     if (reviewAll) {
