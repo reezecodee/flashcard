@@ -1,11 +1,7 @@
 name: Flutter Build Android
 
-# Trigger: Jalan setiap kali ada push ke branch 'main'
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_dispatch: # <--- Artinya: Jalanin manual lewat tombol
 
 jobs:
   build:
