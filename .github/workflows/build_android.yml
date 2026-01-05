@@ -1,0 +1,49 @@
+name: Flutter Build Android
+
+# Trigger: Jalan setiap kali ada push ke branch 'main'
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest # Menggunakan Virtual Machine Linux (Gratis & Cepat)
+
+    steps:
+      # 1. Ambil kode dari repository
+      - uses: actions/checkout@v4
+
+      # 2. Setup Java (Dibutuhkan untuk build Android)
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'zulu'
+          java-version: '17'
+
+      # 3. Setup Flutter Environment
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.32.6' # Sesuaikan dengan versi Flutter Anda
+          channel: 'stable'
+
+      # 4. Download dependencies (library)
+      - name: Install dependencies
+        run: flutter pub get
+
+      # 5. (Opsional) Jalankan Linter & Test
+      # - name: Run Analyze
+      #   run: flutter analyze
+      # - name: Run Test
+      #   run: flutter test
+
+      # 6. Build APK (Release version)
+      - name: Build APK
+        run: flutter build apk --release --no-tree-shake-icons
+
+      # 7. Upload hasil APK ke GitHub Artifacts agar bisa didownload
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
